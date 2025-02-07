@@ -11,7 +11,13 @@ import Button from "@mui/material/Button";
 const MatchingGame: React.FC = () => {
   const [numberOfFaces, setNumberOfFaces] = useState<number>(5);
   const [numTries, setNumTries] = useState<number>(0);
-  const [faces, setFaces] = useState<JSX.Element[]>([]);
+  const [faces, setFaces] = useState<{
+    leftSide: JSX.Element[];
+    rightSide: JSX.Element[];
+  }>({
+    leftSide: [],
+    rightSide: [],
+  });
   const [gameOver, setGameOver] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [modalMessage, setModalMessage] = useState<string | ReactNode>("");
@@ -51,7 +57,7 @@ const MatchingGame: React.FC = () => {
       .map((face) => {
         // Clone and adjust left position for right side
         const clonedFace = React.cloneElement(face, {
-          key: `right-${face?.key.split("-")[1]}`,
+          key: `right-${face?.key?.split("-")[1] || "default-key"}`,
         });
         return clonedFace;
       });
@@ -75,10 +81,10 @@ const MatchingGame: React.FC = () => {
     setIsModalOpen(true);
     setModalMessage(
       <>
-      <div style={{padding:"0 40px", fontFamily:"sans-serif"}}>
-        You completed {numTries} tries.
-        <br />
-        Please try again.
+        <div style={{ padding: "0 40px", fontFamily: "sans-serif" }}>
+          You completed {numTries} tries.
+          <br />
+          Please try again.
         </div>
       </>
     );
@@ -206,7 +212,7 @@ const MatchingGame: React.FC = () => {
           <p>{modalMessage}</p>
         </DialogContent>
         <DialogActions>
-        <Button
+          <Button
             onClick={reload}
             variant="contained"
             size="medium"
