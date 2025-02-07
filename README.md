@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
@@ -48,3 +49,7 @@ export default tseslint.config({
   },
 })
 ```
+=======
+# consilium-matching-game
+Logo matching game
+>>>>>>> cbbb57901c98599faf3ea74dfe46aa2e4b5df103
