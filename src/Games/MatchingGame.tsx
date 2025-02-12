@@ -8,7 +8,11 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import Button from "@mui/material/Button";
 import axios from "axios";
-import { API_URL } from "../../config";
+
+const API_URL = process.env.NODE_ENV === 'development'
+  ? 'http://localhost:5000/api/player' // Local development URL
+  : process.env.VITE_API_URL; // Vercel production URL
+
 
 const MatchingGame: React.FC = () => {
   const [playerName, setPlayerName] = useState<string>("");
