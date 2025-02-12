@@ -1,14 +1,18 @@
 import React, { useState, useEffect, JSX, ReactNode } from "react";
 import logo from "../assets/images/consilium-logo.png";
 import InfoIcon from "@mui/icons-material/Info";
-import { Box, Tooltip, Typography } from "@mui/material";
+import { Box, TextField, Tooltip, Typography } from "@mui/material";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import Button from "@mui/material/Button";
+import axios from "axios";
+import { API_URL } from "../../config";
 
 const MatchingGame: React.FC = () => {
+  const [playerName, setPlayerName] = useState<string>("");
+  const [savedPlayer, setSavedPlayer] = useState<string>("");
   const [numberOfFaces, setNumberOfFaces] = useState<number>(5);
   const [numTries, setNumTries] = useState<number>(0);
   const [faces, setFaces] = useState<{
@@ -21,13 +25,25 @@ const MatchingGame: React.FC = () => {
   const [gameOver, setGameOver] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [modalMessage, setModalMessage] = useState<string | ReactNode>("");
+  const [isGameStarted, setIsGameStarted] = useState<boolean>(false);
 
   useEffect(() => {
-    generateFaces();
+    if (isGameStarted) {
+      generateFaces(); // Call generateFaces only when the game has started
+    }
+
     return () => {
       document.body.removeEventListener("click", gameOverHandler);
     };
-  }, [numberOfFaces]);
+  }, [numberOfFaces, isGameStarted]);
+
+  useEffect(() => {
+    axios.get(`${API_URL}`).then((response) => {
+      if (response.data?.name) {
+        setSavedPlayer(response.data.name);
+      }
+    });
+  }, []);
 
   const generateFaces = () => {
     const leftSideFaces: JSX.Element[] = [];
@@ -91,6 +107,17 @@ const MatchingGame: React.FC = () => {
     document.body.removeEventListener("click", gameOverHandler);
   };
 
+  const savePlayer = async () => {
+    if (playerName.trim() === "") return;
+    try {
+      const response = await axios.post(`${API_URL}`, { name: playerName });
+      setSavedPlayer(response.data.name);
+      setIsGameStarted(true);
+    } catch (error) {
+      console.error("Error saving player:", error);
+    }
+  };
+
   const reload = () => {
     window.location.reload();
   };
@@ -112,6 +139,37 @@ const MatchingGame: React.FC = () => {
         <h1 style={{ textAlign: "center" }}>
           <span>Consilium Matching Game</span>
         </h1>
+        {!isGameStarted && (
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              marginBottom: 2,
+            }}
+          >
+            <TextField
+              label="Enter your name"
+              variant="outlined"
+              value={playerName}
+              onChange={(e) => setPlayerName(e.target.value)}
+              sx={{ marginBottom: 1 }}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={savePlayer}
+              disabled={!playerName.trim()}
+            >
+              Save Name
+            </Button>
+          </Box>
+        )}
+        {savedPlayer && (
+          <Typography variant="h6" sx={{ marginBottom: 2 }}>
+            Player: {savedPlayer} | Tries: {numTries}
+          </Typography>
+        )}
         <Box
           sx={{
             display: "flex",
